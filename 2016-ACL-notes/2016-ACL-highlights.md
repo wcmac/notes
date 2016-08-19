@@ -25,8 +25,8 @@
 This doc contains notes on seven papers I found especially interesting. My full raw notes are [here](2016-ACL-notes.txt).
 
 - [Bowman et al. 2016](#spinn)
-- [Hewlett et al. 2016](#wikireading)
 - [Chen et al. 2016](#danqi)
+- [Hewlett et al. 2016](#wikireading)
 - [Wang et al. 2016](#shrdlurn)
 - [Hovy 2016](#enemy)
 - [Søgaard & Goldberg 2016](#dmtl)
@@ -88,7 +88,85 @@ Tree-structured neural networks exploit valuable syntactic parse information as 
       add attention model
       reinforcement learning for parsing actions => learn syntax from a semantic task
 
-Code is on GitHub! [https://github.com/stanfordnlp/spinn](https://github.com/stanfordnlp/spinn)
+Code is on GitHub!  
+[https://github.com/stanfordnlp/spinn](https://github.com/stanfordnlp/spinn)
+
+____________________________________________________________________________________________________
+
+
+### <a name="danqi"></a> Chen et al. 2016
+
+A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task  
+Danqi Chen, Jason Bolton and Christopher D. Manning  
+[https://www.aclweb.org/anthology/P/P16/P16-1223.pdf](https://www.aclweb.org/anthology/P/P16/P16-1223.pdf)
+
+
+Abstract:  
+
+Enabling a computer to understand a document so that it can answer comprehension questions is a central, yet unsolved goal of NLP. A key factor impeding its solution by machine learned systems is the limited availability of human-annotated data.  Hermann et al. (2015) seek to solve this problem by creating over a million training examples by pairing CNN and Daily Mail news articles with their summarized bullet points, and show that a neural network can then be trained to give good performance on this task. In this paper, we conduct a thorough examination of this new reading comprehension task. Our primary aim is to understand what depth of language understanding is required to do well on this task. We approach this from one side by doing a careful hand-analysis of a small subset of the problems and from the other by showing that simple, carefully designed systems can obtain accuracies of 72.4% and 75.8% on these two datasets, exceeding current state-of-the-art results by over 5% and approaching what we believe is the ceiling for performance on this task.
+
+
+#### The task and the datasets
+
+    reading comprehension: passage (P) + question (Q) => answer (A)
+    data is a bottleneck
+    existing datasets very small
+    last year, DeepMind (Hermann et al. 2015) created a very large dataset from CNN/Daily Mail
+    ~1M examples
+
+![danqi-1.png](danqi-1.png)
+
+![danqi-2.png](danqi-2.png)
+
+    this paper
+    lower bound: simple systems work surprisingly well on this dataset
+    upper bound: manual analysis indicates that we are almost done -- this task is not that hard!
+
+#### Establishing stronger baselines with simple models
+
+    system 1: simple entity-centric classifier with manually-engineered features
+      for each entity, build vector of very simple features
+    system 2: end-to-end NN: bi-RNN w/ attention -- nowadays a pretty standard architecture
+
+![danqi-3.png](danqi-3.png)
+
+![danqi-4.png](danqi-4.png)
+
+    results
+      baselines: Hermann et al. 2015 (DeepMind), Hill et al. 2016 (Facebook)
+      our simple classifier matches best previous results
+      our NN does even better
+      ensemble of the two does even better! 77% accuracy
+
+![danqi-5.png](danqi-5.png)
+
+    why do we get much better results than DeepMind's attentive reader?
+      bilinear attention
+      remove a redundant layer before prediction
+      predict among entities only, not all words
+
+#### Assessing headroom via manual analysis
+
+    upper bound
+    do ablation analysis of our simple classifier
+      most important feature is n-gram match, followed by frequency
+    manual breakdown of examples into six categories
+      exact match, paraphrasing, partial clue, multiple sentences, coreference error, ambiguous/hard
+      the last two categories are going to be very hard to get, but constitute 25% of examples
+      we're already at 77% performance -- already close to ceiling
+
+![danqi-6.png](danqi-6.png)
+
+    takeaways
+      simple models sometimes just work
+      NNs great for learning semantic matches
+      dataset is large, but still noisy, not hard enough for reasoning and inference
+      more datasets coming: WikiReading, LAMBADA, SQuAD
+      it's an exciting time for reading comprehension!
+
+Code is on GitHub!  
+[https://github.com/danqi/rc-cnn-dailymail](https://github.com/danqi/rc-cnn-dailymail)
+
 
 ____________________________________________________________________________________________________
 
@@ -169,85 +247,8 @@ We present WIKIREADING, a large-scale natural language understanding task and pu
     really nice work!
     exceptionally clear presentation!
 
-Dataset available online, 18M instances:
+Dataset available online, 18M instances:  
 [https://github.com/dmorr-google/wiki-reading](https://github.com/dmorr-google/wiki-reading)
-
-
-____________________________________________________________________________________________________
-
-
-### <a name="danqi"></a> Chen et al. 2016
-
-A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task  
-Danqi Chen, Jason Bolton and Christopher D. Manning  
-[https://www.aclweb.org/anthology/P/P16/P16-1223.pdf](https://www.aclweb.org/anthology/P/P16/P16-1223.pdf)
-
-
-Abstract:  
-
-Enabling a computer to understand a document so that it can answer comprehension questions is a central, yet unsolved goal of NLP. A key factor impeding its solution by machine learned systems is the limited availability of human-annotated data.  Hermann et al. (2015) seek to solve this problem by creating over a million training examples by pairing CNN and Daily Mail news articles with their summarized bullet points, and show that a neural network can then be trained to give good performance on this task. In this paper, we conduct a thorough examination of this new reading comprehension task. Our primary aim is to understand what depth of language understanding is required to do well on this task. We approach this from one side by doing a careful hand-analysis of a small subset of the problems and from the other by showing that simple, carefully designed systems can obtain accuracies of 72.4% and 75.8% on these two datasets, exceeding current state-of-the-art results by over 5% and approaching what we believe is the ceiling for performance on this task.
-
-
-#### The task and the datasets
-
-    reading comprehension: passage (P) + question (Q) => answer (A)
-    data is a bottleneck
-    existing datasets very small
-    last year, DeepMind (Hermann et al. 2015) created a very large dataset from CNN/Daily Mail
-    ~1M examples
-
-![danqi-1.png](danqi-1.png)
-
-![danqi-2.png](danqi-2.png)
-
-    this paper
-    lower bound: simple systems work surprisingly well on this dataset
-    upper bound: manual analysis indicates that we are almost done -- this task is not that hard!
-
-#### Establishing stronger baselines with simple models
-
-    system 1: simple entity-centric classifier with manually-engineered features
-      for each entity, build vector of very simple features
-    system 2: end-to-end NN: bi-RNN w/ attention -- nowadays a pretty standard architecture
-
-![danqi-3.png](danqi-3.png)
-
-![danqi-4.png](danqi-4.png)
-
-    results
-      baselines: Hermann et al. 2015 (DeepMind), Hill et al. 2016 (Facebook)
-      our simple classifier matches best previous results
-      our NN does even better
-      ensemble of the two does even better! 77% accuracy
-
-![danqi-5.png](danqi-5.png)
-
-    why do we get much better results than DeepMind's attentive reader?
-      bilinear attention
-      remove a redundant layer before prediction
-      predict among entities only, not all words
-
-#### Assessing headroom via manual analysis
-
-    upper bound
-    do ablation analysis of our simple classifier
-      most important feature is n-gram match, followed by frequency
-    manual breakdown of examples into six categories
-      exact match, paraphrasing, partial clue, multiple sentences, coreference error, ambiguous/hard
-      the last two categories are going to be very hard to get, but constitute 25% of examples
-      we're already at 77% performance -- already close to ceiling
-
-![danqi-6.png](danqi-6.png)
-
-    takeaways
-      simple models sometimes just work
-      NNs great for learning semantic matches
-      dataset is large, but still noisy, not hard enough for reasoning and inference
-      more datasets coming: WikiReading, LAMBADA, SQuAD
-      it's an exciting time for reading comprehension!
-
-Code is on GitHub!  
-[https://github.com/danqi/rc-cnn-dailymail](https://github.com/danqi/rc-cnn-dailymail)
 
 
 ____________________________________________________________________________________________________
