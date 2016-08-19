@@ -1,0 +1,1370 @@
+;; -*- Mode: Outline; Mode: Auto-Revert -*-
+
+* MONDAY ===========================================================================================
+
+arrived in Berlin at 6:30am this morning
+took bus from TXL to HauptBahnhof
+walked to hotel & checked in
+walked to conference venue at Humboldt University
+program begins at 8:45am
+
+1,600 attendees -- biggest ever
+
+** Keynote -----------------------------------------------------------------------------------------
+
+Amber Boydstun
+"Same Policy Issue, Different Portrayal: The Importance of Tone and Framing in Language"
+
+overview
+- politcal science questions related to computational linguistics
+- definitions
+- media storms research
+- death penalty research
+- policy frames research
+- pressing questions & future research
+
+examples of different language from Clinton & Trump
+
+focus on three aspects of language: attention, framing, tone
+
+death penalty: frequency and public support rose from 1970s to 1990s
+then in 1990s, a strange reversal in both frequency and support -- why?
+nothing about the underlying issue has changed
+hypothesis: it has to do with how the issue is talked about, specifically framing
+a shift from focus on constitutionality and morality to focus on fairness
+looked at NYTimes stories, lots of manual annotation
+a dramatic rise in attention in late 1990s
+and a marked shift in framing toward issues of fairness
+
+policy frames
+a consistent scheme of 15 frames which cross-cut policy issues
+  economics, morality, health & safety, ...
+six different issues: immigration, gun control, marijuana, ...
+4,000-6,000 articles each
+annotated for tone, primary frame, frame in headline, frame anywhere in body
+then train an ML model to predict these
+does pretty well: 0.8 AC
+
+
+** Session 1 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Noise reduction and targeted exploration in imitation learning for Abstract Meaning Representation parsing
+James Goodman, Andreas Vlachos and Jason Naradowsky
+
+presented by Vlachos, thick accent
+incremental optimizations to transition-based AMR parsing
+very dull
+
+*** ................................................................................................
+
+Data Recombination for Neural Semantic Parsing
+Robin Jia and Percy Liang
+
+Robin was my student in CS224U!
+
+two big themes
+  neural semantic parsing!
+  data recombination
+
+can we get good performance with a domain-general model
+three domains: Geoquery, ATIS, Overnight
+approach: neural sequence-to-sequence models with attention
+
+problem of rare entities, e.g. city names in Geoquery
+solution: attention-based copying, similar to a strategy used in neural MT
+
+standard setup
+maximize log likelihood using SGD
+decoder uses beam search
+
+data recombination
+take training examples and swap pieces of them, e.g. names of states
+relies on an alignment procedure
+uses high-precision alignment rules
+expands training dataset
+
+what about composing these two ideas?
+matches SOTA performance on Geoquery
+
+one more idea
+artificially manufacture longer examples, e.g. using concatenation
+exceeds SOTA performance
+
+discussion: relationship to data augmentation strategy in computer vision (e.g. cropping)
+helps with generalization
+
+*** ................................................................................................
+
+Inferring Logical Forms From Denotations
+Panupong Pasupat and Percy Liang
+
+WikiTableQuestions dataset
+"where the last 1st place finish occur?"
+
+learning from denotations -- no direct supervision of logical forms
+space of logical forms is combintatorially large
+could solve this by imposing constraints
+but this comes with a cost: lower coverage
+
+instead, expand space of logical forms, for better coverage
+
+problem: many logical forms are not even consistent
+problem: spurious logical forms: correct denotation, wrong reason
+
+beam search
+compose logical forms of larger and larger size, starting from base predicates
+but because of pruning, we'll miss a lot of consistent logical forms
+
+idea: collapse LFs that have the same denotation into a single meta-LF
+dynamic progreamming on denotations
+
+second step: prune spurious LFs
+fix by changing the ground truth model (the table) you're executing against (fictitious worlds)
+this causes spurious LFs no longer to yield correct answer
+
+so two key ideas to explore a larger space of LFs
+  DP on denotations
+  fictitious worlds
+
+*** ................................................................................................
+
+Language to Logical Form with Neural Attention
+Li Dong and Mirella Lapata
+
+learning from LFs, learning from denotations
+goal: reduce reliance on domain knowledge, manually designed features
+build a general-purpose parser
+
+approach: neural seq2seq model with attention
+two-layer LSTM
+
+drawback: ignores hierarchical structure -- sometimes gets parens wrong
+so we propose a seq2tree model
+encoder is like seq2seq model, but decoder is different -- didn't quite get it
+
+also attention mechanism for soft alignment
+training and inference are pretty standard
+rare words: entities and numbers
+standard strategy: replace rare words with UNK -- bad for semantic parsing
+so instead use post-processing step to fix it up
+
+four datasets: JOBS, GEO, ATIS, IFTTT
+vanilla seq2seq is unimpressive
+argument handling helps some
+attention helps a lot
+seq2tree helps a little bit more
+almost SOTA on JOBS, GEO
+exceed SOTA on IFTTT
+
+
+** Session 2 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Word Embeddings as Metric Recovery in Semantic Spaces (TACL)
+Tatsunori Hashimoto, David Alvarez-Melis and Tommi Jaakkola
+
+how do word embeddings capture semantics?
+unifies existing word embeddings
+word embeddings as metric recovery
+suggests why analogies can be solved with embeddings
+
+1. semantic spaces
+2. co-occurrences are closely related to semantic similarity
+3. word vectors interpreted as a type of manifold learning
+
+word embeddings for analogies seems like a new idea, but it's not!
+Rumelhart & Abramson 1973
+Sternberg & ___ 1983
+
+three different tasks that can be solved with semantic spaces
+  analogies: king : man :: queen : woman
+  sequences: [body, arm, hand, finger]
+  classification: {giraffe, antelope, ___} choose from {cat, dog, deer}
+
+so
+semantic spaces naturally solve analogies
+relationship to manifold learning
+
+assume a generative Markov model of sentences where generation probability depends on semantic sim
+then it turns out that log cooccurrence is the best estimate, in the limit, of semantic sim
+reduces manifold learning to word embeddings
+
+manifold learning for MNIST
+reduced to word embedding
+
+*** ................................................................................................
+
+Compressing Neural Language Models by Sparse Word Representations
+Yunchuan Chen, Lili Mou, Yan Xu, Ge Li and Zhi Jin
+
+language problems
+difficult to follow
+
+sparsifying a neural LM
+represent infrequent words with frequent words' vectors -- like the hashing trick?
+actually a sparse linear combination of vectors of common words
+from the NN perspective, the embedding layer has been split into two layers
+one expresses these sparse linear combination
+the second expresses the usual embeddings, but only for frequent words
+
+*** ................................................................................................
+
+Intrinsic Subspace Evaluation of Word Embedding Representations
+Yadollah Yaghoobzadeh and Hinrich Schütze
+
+evaluating quality of word embeddings by looking at its intrinsic properties
+
+embeddings represent word meanings in terms of facets
+fullspace vs. subspace similarity
+fullspace: cosine sim
+subspace: only look at some dimensions when computing sim
+fullspace sim doesn't work well
+
+intrinsic vs. extrinsic evals
+
+challenges: ambiguity, multifacetedness, ...
+
+ambiguity
+if a word has two senses, do we need two vectors?
+if you have only vector, it will be an average of the two
+if you use fullspace sim, this is a problem
+if we use subspace similarity, it's not so bad
+
+extrinsic evaluation: entity typing
+
+
+*** ................................................................................................
+
+On the Role of Seed Lexicons in Learning Bilingual Word Embeddings
+Ivan Vulić and Anna Korhonen
+
+want features for NLP that are task-independent, and also language-independent
+bilingual joint embeddings
+
+four approaches to BWEs
+1 jointly learn and align BWEs using parallel-only data
+2 jointly learn and align BWEs using monolingual and parallel data
+3 learn BWEs frmo comparable document-aligned data
+4 align pretrained monolingual embeddings spaces using seed lexicons
+    this is what we'll focus on
+    post-hoc mapping
+    can we make it work better by making intelligent choices about the seed lexicon?
+
+learn two embeddings X and Y independently
+assume a linear mapping W between them
+then minimize ||XW - Y||_F - \lambda ||W||
+
+
+** Session 3 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Neural Summarization by Extracting Sentences and Words
+Jianpeng Cheng and Mirella Lapata
+
+neural networks for extractive supervised single-document summarization
+problem: lack large labeled datasets
+use DeepMind reading comp dataset
+sentence extraction -- for each sentence, should it be extracted?
+
+model
+  sentence encoder: CNN w/ max pooling
+  document encoder:
+  then a word extraction layer
+
+test sets: DUC 2002 and Daily Mail
+eval: ROUGE-2 and human judgment (AMT)
+
+NN sentence extraction system does quite well, although not quite SOTA
+an attempt to do NN abstractive summarization (using seq2seq model) does very poorly
+
+*** ................................................................................................
+
+Combining Natural Logic and Shallow Reasoning for Question Answering
+Gabor Angeli, Neha Nayak and Christopher D. Manning
+
+in great part inspired by my dissertation work!
+
+old problem: logic + ML often at odds
+ML gives us practical, generilizable systems
+but struggles with logical subtleties
+history of attempts to marry ML + logic
+
+natural logic
+an example of natural logic reasoning
+syllogisms
+modern natural logic
+
+natural logic question answering as search
+
+three contributions for generalizable inference
+  1 partial order over meronymy (Berlin < Germany < EU) + relations (sell < own < have)
+  2 natural logic over dependency trees
+  3 hybrid statistical / logical solver
+
+lexical alignment as an entailment classifier
+run our usual search
+  1 if we find a premise, great
+  2 if not, use lexical classifier as an evaluation function
+we need to visit 1M nodes per second -- se we have to be fast!
+describes how to do that, by decomposing dot product over search tree
+
+solving 4th grade science
+multiple choice questions from real 4th grade science exams
+
+which is an example of a good health habit?
+  watching television
+  smoking cigarettes
+  eating candy
+  exercising every day
+
+and hey, we can pass 4th grade logic!
+although AI2 does even better
+
+*** ................................................................................................
+
+Neural Networks For Negation Scope Detection
+Federico Fancellu, Adam Lopez and Bonnie Webber
+
+defining scope, cue
+examples
+
+why do this?
+translating negation is hard, so could benefit MT
+so we want to do it well across languages
+can we build a system that
+  relies solely on language-independent features
+  performs at least as well as previous systems in English?
+
+bi-LSTM
+simple language-independent features: word embeddings, universal POS tags
+problem formuation
+  input:  a vector of words, a binary vector indicating cue words
+    need the cue vector because a sentence can contain multiple cues
+  output: a binary vector indicating scope of negation
+
+does it work? results
+data: sharlock holmes stories annotated with negation cues and scopes
+<1000 sentences [really? with an LSTM?]
+baselines from prior work: manually-specified features & SVMs
+in general, we perform on par with prior work, best system is slightly better
+error analysis
+a second eval on Wikipedia data
+
+[kind of hard to believe this was accepted]
+[it's not bad work, but just seems so trivial]
+
+*** ................................................................................................
+
+CSE: Conceptual Sentence Embeddings based on Attention Model
+yashen wang, Heyan Huang, Chong Feng, Qiang Zhou, Jiahui Gu and Xiong Gao
+
+language problems -- hard to follow
+
+motivation: success of vector space representations
+neither parsing nor topic models work well on short text
+CSE = unsupervised approach to learned vector repns from sentences
+deals with ambiguity: apple vs Apple
+CSE-1 based on CBOW
+CSE-2 based on skip-gramss
+review of CBOW & skip-grams
+  hierarhical softmax, negative sampling
+idea: sentence vector is asked to contribute to predicting next word given many contexts
+add attention model
+
+experiments
+tasks: textcat & IR
+datasets: NewsTile, Twitter, TREC
+alternatives: BOW, LDA, PV (paragraph vectors), TWE (topical word embeddings)
+results: very good
+
+*** ................................................................................................
+
+Improving Coreference Resolution by Learning Entity-Level Distributed Representations
+Kevin Clark and Christopher D. Manning
+
+coreference is fundamentally a clustering task
+e.g. bottom-up agglomerative clustering -- scoring pairs of clusters on whether to join
+another approach: mention ranking -- scoring pairs of mentions
+but this makes it hard to use entity-level information -- goes through example
+
+capturing entity-level information
+old way: handcrafted categorical features, e.g. gender disagreement, name mismatch
+let's instead use learned, continuous features from an NN
+
+NN architecture
+mention-pair vector representations
+joined to yield cluster-pair representation
+yields score
+a single NN, end-to-end differentiable
+
+note: not the first NN for coref
+but the first that operates at the cluster-pair level, rather than the mention-pair level
+
+how to produce mention-pair repns
+3-layer FFNN
+does include a small number of hand-crafted features
+other improvements over prior work: pretraining, dropout, ...
+
+producing cluster-pair repns
+first, generate all the mention-pair repns for the cross product of mentions in the clusters
+then use max pooling and avg pooling
+
+finally, assign scores to cluster merges
+use a 1-year FFNN to cluster-pair repns
+
+at predict time, just greedily take highest-scoring cluster pair until none left [?]
+
+training
+sequential decision model
+"learning to search"
+key idea: train the model to imitate an expert policy
+
+pretraining
+training from scratch is ineffective
+pretrain on pairs of mentions (mention ranking model)
+this also helps with search space pruning
+
+eval
+English and Chinese portions of CoNLL 2012
+switching languages is easy because there are no language-based features
+report CoNLL F1
+achieve new SOYA
+
+when does entity-level information help? examples
+where do NNs help? examples
+
+code is on github
+trained models are also incorporated in StanfordNLP
+
+
+* TUESDAY ==========================================================================================
+
+** Session 4 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Simpler Context-Dependent Logical Forms via Model Projections
+Reginald Long, Panupong Pasupat and Percy Liang
+
+want to do semantic parsing with context-dependence
+e.g. "what is the tallest building in london?" "what is the fourth one?"
+
+introduce three new datasets that exhibit context dependence
+  alchemy, scane, tangrams
+  several thousand examples each
+approach: generate artifical worlds, transform them, get MTurkers to describe changes in English
+
+key challenge: exponential search space
+key idea: reduce size of space using model projections
+  i.e. replace sub-LFs with denotations
+
+all datasets, code, experiments are available on Codalab
+
+*** ................................................................................................
+
+Compositional Learning of Embeddings for Relation Paths in Knowledge Base and Text
+Kristina Toutanova, Victoria Lin, Wen-tau Yih, Hoifung Poon and Chris Quirk
+
+cf. Lao et al. 2012
+goal: try to predict new relationships between entities in the KB
+using text in KB completion
+Model 1: embedding-based models for KB completion
+score any candidate fact (triple) based on entity embeddings
+looking at paths between entities to try to predict a direct relationship between them
+  example: gene regulation relationships
+
+*** ................................................................................................
+
+A Fast Unified Model for Parsing and Sentence Understanding
+Samuel R. Bowman, Jon Gauthier, Abhinav Rastogi, Raghav Gupta, Christopher D. Manning and Christopher Potts
+
+sentence encoders in supervised learning
+common sentence encoders: sum of word embeddings, RNNs, CNNs, TreeRNNs
+TreeRNN, hwo it works
+pro: theoretically appealing, empirically competitive
+con: relies on external parser, and slow -- don't support batch computation
+conventional RNNs can be computed far more efficiently on GPUs due to batched computation
+SPINN: Shift-reduce parser interpreter NN
+equaivalent to TreeRNN, but way faster, and doesn't require external parser
+key idea: mapping from binary tree to transition sequences (transition-based parsing)
+  sequence of shift/reduce operations
+
+context-sensitive composition
+the model sees a low-dimensional summary of the left context
+this is produced by the "tracking LSTM"
+  inputs: head of stack, head of buffer
+integrated parser: two-way transition classifier, emits shift or reduce, informed by tracking LSTM
+
+implementing the stack -- how to do it in NN?
+naive: simulate with fixed-size array
+requires lots of inefficient copying
+thinner stack: store only head of stack [huh? are we actually losing information? don't get it]
+
+experiments on SNLI corpus
+using SPINN for SNLI
+error analysis: negation
+future work
+  add attention model
+  reinforcement learning for parsing actions => learn syntax from a semantic task
+
+code is on GitHub
+
+TODO: candidate for presentation to Proactive
+
+*** ................................................................................................
+
+WikiReading: A Novel Large-scale Language Understanding Task over Wikipedia
+Daniel Hewlett, Alexandre Lacoste, Llion Jones, Illia Polosukhin, Andrew Fandrianto, Jay Han, Matthew Kelcey and David Berthelot
+
+a dataset for evaluating deep learning models for QA
+factoid-style QA as end-to-end optimization
+want to evaluate in a shared way
+models like this benefit from very large datasets
+there is no perfect dataset
+
+example
+wiki page for barack obama
+wikidata entry
+wikidata: crowdsourced KB, similar to Freebase, but aligned to wikipedia
+  properties and values
+each task instance
+  raw text from wikipedia article
+  property is question
+  value is answer
+two kinds: categorical properties, limited set of values, a classification task
+  e.g. gender, country of origin
+  evidence is often distributed over the text, like a text cat problem
+also relational properties: dates, names, places
+  evidence is extracted from a single point in text, like an IE problem
+dataset statistics
+  18.5M instances
+  900 unique properties
+  perhaps less varied than other datasets
+  but much larger
+scoring metric
+  mean F1: compute F1 per problem, then average over problems
+  this is a way of giving partial credit for set-based answers
+
+approaches to QA -- what works best?
+tried a variety of approaches, incl. recent DNN work, also textcat
+
+eval setup in TensorFlow
+fixed hyperparameters like vocab size
+
+approaches
+  classification -- for textcat problems
+  labeling / pointing -- for extraction problems -- label each word in doc as part of answer or not
+  seq2seq -- encode doc and question, decode the answer as seq of words or chars
+
+results for a range of models
+best results from "attentive reader" by Hermann et al. 2015
+broadly, models with RNNs and attention do best
+
+seq2seq models
+rare word copying -- similar to MT, Luong et al. 2015
+word-level vs. char level: char-level permits OOV generation, but seqs are very long
+overall, seq2seq models perform best
+  handles categorical tasks as well as classifiers
+  handles relational tasks as well as labelers
+  and actually users fewer parameters
+
+future work
+  still lots of headroom on performance
+  char-level seq2seq especially promising
+  multilingual: dataset generation could easily be done in other languages
+
+dataset is available online
+
+really nice work!
+exceptionally clear presentation!
+
+TODO: candidate for presentation to Proactive
+
+** Session 5 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+The red one!: On learning to refer to things based on discriminative properties
+Angeliki Lazaridou, Nghia The Pham and Marco Baroni
+
+DAN a passive supervised model of reference
+referring to things: "the yellow duck next to the cat"
+in an image, a bounding box
+choose an adjective to identify
+Discriminativeness Attribute Dataset
+
+[unclear]
+visual entities => visual instance vectors => attribute layer => discriminative layer => attribute
+predicting discriminative features
+
+experiments comparing to humans identifying the most discriminative attribute
+just because the model picks an attribute picks an attribute which is discriminative
+  doesn't follow that it picks the same one that a human would
+  because often there are multiple discriminative attributes
+
+how does a human learn this? it is an interactive process
+communication-based reference learning through referential games
+two-agent simulation
+A generates a referring expression, using the DAN model
+B resolves the referring expression, using a similar FFNN
+measure communicative success over iterations
+
+*** ................................................................................................
+
+Don't Count, Predict! An Automatic Approach to Learning Sentiment Lexicons for Short Text
+Duy Tin Vo and Yue Zhang
+
+want to construct sentiment lexicon, like SentiWordNet
+
+methods
+  manual: time-consuming and/or expensive
+  learned
+    prediction-based
+      expanding seed sentiment lexicons
+      problem: need external resources
+    counting-based
+      e.g. PMI-based
+
+our goal: build simple, efficient, prediction-based model w/o external lexicons or seed words
+SS(w) = PMI(w, pos) - PMI(w, neg)
+  [seems to require labeling tweets as pos or neg?]
+our model: inspired by word2vec
+employ two attributes to represent polarity scores of a word
+
+experiments
+use emoticons to label tweets
+ugh this is so lame
+
+*** ................................................................................................
+
+The Enemy in Your Own Camp: How Well Can We Detect Statistically-Generated Fake Reviews -- An Adversarial Study
+Dirk Hovy
+
+[somebody stole his laptop! no slides! kickin it old school style! daaaamn!]
+
+lots of reviews -- Yelp, Trip Advisor
+a multi-billion dollar industry
+problem of fake reviews
+companies are using NLP to identify fake reviews
+we're actually able to do this pretty well
+fake reviewers are lazy
+too many adjectives
+can use a logistic regression model pretty well
+if we can detect fake reviews using NLP, can we make fake reviews using NLP
+7-gram Markov model works really well
+now, can we detect those?
+turns out that fake detectors also use metadata extensively -- age, gender
+so to make good fakes, you have to fake the metadata too
+a generative model for that
+adversarial setup
+how well can NLP tools fool NLP tools
+if you don't generate fake metadata, the LR model can discriminate the fakes
+but if you do, it can't distinguish the fakes!
+how well do humans do? terrible -- worse than logistic regression models
+so this is how you can get rich quick
+
+TODO candidate for presentation to Proactive
+
+*** ................................................................................................
+
+Deep multi-task learning with low level tasks supervised at lower layers
+Anders Søgaard and Yoav Goldberg
+
+bi-LSTM models
+input layer: pretrained embeddings
+output layers: syntactic chunking, or POS tagging (multi-task learning)
+during training, we randomly sample from the two datasets, then randomly sample an example
+
+three perspectives on multi-task learning
+1 semi-supervised learning
+    auxiliary data is enriched unlabeled data
+2 representation learning
+    auxiliary data is used to learn representations that are useful for target task
+3 regularization
+    auxiliary data is an adaptive prior
+
+inspiration: face recognition, preogressively more complex repns at higher layers
+idea: use POS data to supervise at lower layers, not top layer
+instead of supervising with either POS or syntax at top output layer
+
+experiments
+baseline vs. vanilla MTL vs cascaded
+yes, cascaded helps!
+
+more experiments
+domain adaptation
+assume we have POS-annotated data for target domain, but not SYN-annotated data
+here the effect is even more pronounced
+
+MTL as regularization
+is supervision at lower layers more prone to overfitting?
+no, in fact it is less vulnerable to overfitting than baseline or vanilla MTL
+
+take home messages
+MTL is cool
+NNs provide a convenient framework for MTL
+but think about your architectures
+
+TODO candidate for presentation to Proactive
+
+*** ................................................................................................
+
+Which Tumblr Post Should I Read Next?
+Zornitsa Kozareva and Makoto Yamada
+
+users are overwhelmed with information -- what's relevant
+can subscribe to users, e.g. on twitter
+so want to recommend blog posts relevant to you
+with tumblr
+250M blogs
+each user has one primary blog, one or more secondary blogs
+we focus on text, not photos
+title, body, tags
+you can like, reblog
+topics: fashion, photography, emotions, education, homework
+
+methods
+similar to collaborative filtering
+sparse interaction matrix
+decomposing or factoring is hard
+supplement with auxiliary dense matrices containing metadata about users, items
+then, convex collective matrix completion (CCMC)
+the CCMC optimization problem
+  min ||F of diff of orig matrix X and reconsutrcuted matrix Z
+how?
+Hazan's algorithm, introduced last year, iterative algo
+
+features
+  declared features: title description, ...
+  content features
+  user action
+
+comparative study
+compare to CF approaches: item-based, user-based
+other popular methods, incl. LDA-based
+[very fast-paced!]
+
+dataset
+15K users
+train 5M user-items
+test 8.6 user-items, later in time
+try to predict interactions
+eval on prec, recall, NDCG
+CCMC-Hazan dominates all other algos
+three months are sufficient to capture users' interests
+
+** Session 6 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Learning Structured Predictors from Bandit Feedback for Interactive NLP
+Artem Sokolov, Julia Kreutzer, Christopher Lo and Stefan Riezler
+
+bandit learning
+learner makes prediction, receives partial feedback
+learner does not correct answer, nor what would have happened if it had predicted differently
+
+goal: minimize expected regret
+set of arms is usually small
+this work: exponential set of arms
+similar to reinforcement learning
+similar to pairwise preference learning
+
+many potential NLP applications
+numerical judgments on output quality
+extending prev work with focus on learning speed, elicitability
+
+assume underlying Gibbs distribution [i.e. just a loglinear model]
+minimize expected loss, aka risk
+
+*** ................................................................................................
+
+A Trainable Spaced Repetition Model for Language Learning
+Burr Settles and Brendan Meeder
+
+[not presented by Burr -- is that Jordan Boyd-Graber? yes]
+
+Duolingo
+overview of Duolingo's NLP architecture
+half-life regression, a novel spaced-repetion model for long-term learning and practice
+
+Duolingo's NLP architecture
+lessons & practice
+skill tree, corpus, student model
+lexeme tags = lexical + morpho-syntactic concept
+4,000+ lexeme tags per course
+each sentence is tagged and indexed by an FST lexeme tagger
+sentences are grouped into skills, which form a DAG
+
+student model & practice
+statistical long-term memory model
+within a given skills, Duolingo keeps track of which words you should focus on
+this should be personalized
+
+spaced repetition & half-life regression
+the spacing effect -- history & background in psychology
+spaced repetition works better than cramming
+the forgetting curve (Ebbinghaus 1885)
+the probability of remembering something is a function of
+  how long it's been since you had to remember it -- exponential decay
+  how sticky it is
+the lag effect: that half-life increases the more you've studied it
+the pimsleur method uses the same ideas
+but it's one-size-fits-all -- best you could do before mass mobile devices
+the leitner system for flashcards
+
+half-life regression (HLR)
+learn the half-lives based on large history of interactions
+objective function
+optimized with SGD
+
+evaluation using real historical data
+13M student-lexeme traces
+comparison to Pimsleur, Leitner, some logistic regression models
+
+can look at word weights
+easy things: common words, words with cognates in other languages
+hard thigns: rare words, words used in tricky grammatical constructions
+
+data & code available from duolingo's GitHub page
+
+TODO possible candidate for presentation? although the technical contribution is marginal
+
+*** ................................................................................................
+
+Deep Reinforcement Learning with a Natural Language Action Space
+Ji He, Jianshu Chen, Xiaodong He, Jianfeng Gao, Lihong Li, Li Deng and Mari Ostendorf
+
+[came in late :-(]
+
+reinforcement learning, MDP
+large state and action spaces (both text)
+time-varying feasible action set
+
+related work
+DeepMind on deep RL
+work on deep RL in parser-based text games
+RL for dialogue
+
+deep Q-networks (DQN) variants
+input: concatenated state-actions
+output: Q-values for different actions
+
+Deep Reinforcement Relevance Network (DRRN)
+separate state and action embeddings
+interaction at the embedding space
+
+experiments
+two text games: "Saving John", "Machine of Death"
+vocabs are not large ~2,000 words
+simulators available on github
+
+experiments
+learning curves
+compare DQN to DRRN
+DRRN performs consistently better, often with lower variance
+
+the DRRN is able to learn something about language that generalizes
+it is not simply memorizing the game
+
+*** ................................................................................................
+
+Incorporating Copying Mechanism in Sequence-to-Sequence Learning
+Jiatao Gu, Zhengdong Lu, Hang Li and Victor O.K. Li
+
+seq2seq learning has trouble with rare words (e.g. names), direct quotations
+humans use rote learning
+
+so: copying mechanism
+encoder: bi-RNN
+decoder: RNN with attention
+two-mode prediction: generate mode or copy mode
+
+[how is this any different from Luong et al. 2015?]
+
+this is dumb
+
+*** ................................................................................................
+
+An Empirical Analysis of Formality in Online Communication (TACL)
+Ellie Pavlick and Joel Tetreault
+
+i don't like your idea:
+"those recommendations were unsolicited and undesirable"
+vs "stupdest idea ever"
+
+can people distinguish formality from informality?
+can computers?
+what linguistic factors are important?
+
+data: four genres: Yahoo Answers, blog, email, news
+ask MTurkers
+distribution of formality over genres
+
+sentence rewriting
+want to control for content
+so ask MTurkers starter sentences, ask them to rewrite for a level of formality
+what do they do?
+lexical/phrasal normalization
+adding context
+slang/idioms
+politeness
+
+textcat model, classifier
+human-engineered features, all the usual suspects
+measure Spearman's rho with MTurk judgments of formality
+compare to previous work
+works pretty well!
+
+internet argument corpus
+
+* WEDNESDAY ========================================================================================
+
+** Session 7 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+A Thorough Examination of the CNN/Daily Mail Reading Comprehension Task
+Danqi Chen, Jason Bolton and Christopher D. Manning
+
+reading comprehension: passage (P) + question (Q) => answer (A)
+data is a bottleneck
+existing datasets very small
+last year, DeepMind (Hermann et al. 2015) created a very large dataset from CNN/Daily Mail
+~1M examples
+
+this paper
+lower bound: simple systems work surprisingly well on this dataset
+upper bound: manual analysis indicates that we are almost done -- this task is not that hard!
+
+system 1: entity-centric classifier
+  for each entity, build vector of very simple features
+system 2: end-to-end NN: bi-RNN w/ attention -- nowadays a pretty standard architecture
+
+results
+  baselines: Hermann et al. 2015 (DeepMind), Hill et al. 2016 (Facebook)
+  our simple classifier matches best previous results
+  our NN does even better
+  ensemble of the two does even better! 77% accuracy
+
+why do we get much better results than DeepMind's attentive reader?
+  bilinear attention
+  remove a redundant layer before prediction
+  predict among entities only, not all words
+
+upper bound
+do ablation analysis of our simple classifier
+  most important feature is n-gram match, followed by frequency
+manual breakdown of examples into six categories
+  exact match, paraphrasing, partial clue, multiple sentences, coreference error, ambiguous/hard
+  the last two categories are going to be very hard to get, but constitute 25% of examples
+  we're already at 77% performance -- already close to ceiling
+
+takeaways
+  simple models sometimes just work
+  NNs great for learning semantic matches
+  dataset is large, but still noisy, not hard enough for reasoning and inference
+  more datasets coming: WikiReading, LAMBADA, SQuAD
+  it's an exciting time for reading comprehension!
+
+code is on github
+
+TODO: strong candidate for presentation to Proactive!
+
+*** ................................................................................................
+
+Learning Language Games through Interaction
+Sida I. Wang, Percy Liang and Christopher D. Manning
+
+natural language interfaces: SIri, Cortana, Google Now, Alexa
+NLI wishlist
+  interactive learning -- feedback from users
+  adapt to users
+  handle special domains and low resource languages
+
+language game -- Wittgenstein
+  language derives its meaning from use
+interactive language game
+  human player has goal, cannot perform actions
+  computer palyer does not know goal, can performa actions, does not understand the language
+
+SHRDLURN
+  blocks world
+  starting configuration, goal
+  "remove red"
+  computer responds with ordered list of actions
+  human provides feedback by choosing correct action
+  "remove right red"
+  built a nice UI for this
+
+computer: semantic parsing
+actions as logical forms
+fairly standard approach to semantic parsing
+  log-linear model, L1 penalty, AdaGrad
+  very generic features: uni-, bi-, skip-grams; tree-grams, cross-product features
+
+humans: 100 MTurkers
+10K utterances (6 hours)
+minimal instructions
+can use any language
+examples
+  some invented their own shortahnd language
+  some were inconsistent, performed poorly
+  most used English, but one used Polish, one used RPN!
+  became more consistent, more concise over time
+  learning works fairly well, esp. for top players
+
+pragmatics
+  say you teach the computer the meaning of one word
+  if you then use a different word, pragmatics suggests that you mean a different thing
+  otherwise you should have just used the same word
+  humans do this without thinking
+  reminiscent of work from Will Monroe and Chris Potts
+  but adding pragmatics had relatively little impact on quantitative results overall
+  however that includes crappy players
+  if you focus only on the top players, it does help a lot!
+
+takeaways
+  more capable and responsive to users
+  feedback mechanism => less likely to be stuck
+  good for low-resource languages and new domains
+  learn from the actual distribution
+
+code, experiments, demo is online: http://shrdlurn.sidaw.xyz
+
+TODO: check out the demo
+TODO: strong candidate for presentation to Proactive!
+
+*** ................................................................................................
+
+Finding Non-Arbitrary Form-Meaning Systematicity Using String-Metric Learning for Kernel Regression
+E. Dario Gutierrez, Roger Levy and Benjamin Bergen
+
+arbitrariness of the sign
+assumption: the relationship between forms and meanings is arbitrary
+but is it so?
+
+systematicity in the lexicon
+sub-morphemic form-mean mappings
+  buzz, clink, clank
+  gl: gleam, glow, glimmer, glint, glance, glare, glisten, glitter, ...
+  sn: snark, sneeze, sniff, snicker, ...
+  sl: slide, slick, sled
+identified intuitively
+confirmed empirically
+but relies on testing specific hypotheses
+can we automate this?
+can we study systematicity globally?
+maybe these are just statistically flukes?
+how broadly distributed over the lexicon?
+
+let's use distributional semantic to study systematicity over the whole lexicon
+Shillock & Kirby 2001
+  over all pairs of words, measure correlation between form distances and meaning distances
+  the correlation is small in magnitude, but highly statistically significant
+Monaghan et al. 2014 -- found no difference from chance
+how to reconcile?
+maybe previous work is not sensitive enough
+  only capture linear relationships
+  treat all types of edits as equivalent
+
+can we learn a model from string space into semantic space?
+  SMLKR model
+  i.e. try to predict meaning from form?
+  kernel regression -- non-parametric regression -- locally smooth
+  metric learning for kernel regression
+  parametrization of edit distance function space
+  optimization
+
+experiments
+  40,000 words, most frequent in BNC corpus
+  found highly statistically significant structure
+  most systematic: gurgle, tingle, hoop, chink, swirl, ladle, ...
+
+behavioral evaluation
+  asked humans how well form corresponds to meaning
+  judgments correlate with predictions of SMLKR model
+
+systematicity is significantly localized
+
+TODO: candidate for presentation to Proactive
+
+*** ................................................................................................
+
+Improving Hypernymy Detection with an Integrated Path-based and Distributional Method
+Vered Shwartz, Yoav Goldberg and Ido Dagan
+
+defn of hypernymy: (apple, fruit) -- but also (apple, company)
+motivation: question answering
+
+prior work: two approaches: path-based, distributional
+our work: NN-based, extends path-based, but then brings in distributional ideas
+
+distributional approach
+use word embeddings
+look at concatenation, or vector difference, of embedding vectors
+then add a classifier
+achieves good results
+is it a solved task?
+  probably not -- they don't a relationship between X and Y, but rather than Y is a good hypernym
+
+path-based approach -- based on joint occurrences in corpus
+Hearst patterns
+Snow et al 2004: supervised method, used dependency paths
+performed very well
+problem: feature space is too sparse, similar paths share no information
+PATTY 2012
+
+our work
+improve path representation
+each edge consists of four components: lemma, POS, label, direction
+learn embedding vectors for each component
+feed the edges sequentially to an LSTM
+use last output vector as path embedding
+so the LSTM encodes a single path
+but a term-pair (X, Y) has multiple paths, so average the embedding vectors
+then feed it to a linear classifier
+
+second step: integrate distributional information
+HypeNET
+
+new dataset
+use distant supervision from knowledge resources
+70K entries
+
+experiments
+comparisons to path-based (Snow et al.) and distributional
+vastly better: 90% F1
+
+*** ................................................................................................
+
+Globally Normalized Transition-Based Neural Networks
+Daniel Andor, Chris Alberti, David Weiss, Aliaksei Severyn, Alessandro Presta, Kuzman Ganchev, Slav Petrov and Michael Collins
+
+transition-based parsing
+stack, buffer
+has a sequence of choices to make: whether to attach next word left or right, or push to stack
+NN approach: Chen & Manning: mebedding layers, ReLUs, softmax
+
+locally normalized models are great
+but globally normallzed models work even better
+standard training: turn gold parses into a sequence of gold transition decisions
+then divide into mini-batches, and apply standard distributed SGD
+but then you're committing to irrevocable decisions!
+
+how important is this? more generally, how important is lookahead?
+did a little study
+adding lookahead adds value out to about 4 tokens
+
+what about decoding-time beam search
+yes, it helps -- system can recover some of its mistakes
+but: label bias
+not always able to overcome a very confident mistake it made early on
+
+core of our idea
+training with early updates [Collins & Roark 2004]
+decode with a beam at training time
+but keep track of location of gold parse
+if gold parse falls off the beam, perform an update
+
+experiments
+performs dramatically better
+
+not just for parsing
+also for POS tagging
+also for sentence compression
+
+why does it work?
+1 avoiding label bias
+2 backprop with a beam
+
+open source: SyntaxNet, Parsey McParseFace
+
+
+** Session 8 ---------------------------------------------------------------------------------------
+
+*** ................................................................................................
+
+Machine Translation Evaluation Meets Community Question Answering
+Francisco Guzmán, Lluís Màrquez and Preslav Nakov
+
+problem: rank comments in a community Q&A forum
+SemEval 2016 Task 3, subtask A
+
+approach: port a pairwise MT eval framework to the problem
+input: (translation1, translation2, reference)
+is translation1 a better translation than translation2?
+
+analogy: two translation candidates <=> two coments
+         reference translation      <=> question
+similarities
+differences: not about equivalent meaning, texts can be much longer
+not a priori clear that this will work!
+
+FFNN for MT eval
+sentences => embeddings => pairwise nodes
+features: stuff like BLEU, Meteor, cosine sim of vector embeddings
+add some task-specific features
+
+data
+only a couple thousand examples!
+
+results
+would have placed second in SemEval 2016
+
+yawn
+
+*** ................................................................................................
+
+The Social Impact of Natural Language Processing
+Dirk Hovy and Shannon L. Spruit
+
+ethics and NLP
+we used to work on the WSJ
+was not designed to reveal anything about the author
+but today we work on social media
+it's very easy to infer a lot of sociodemographic attributes about the author
+
+nobody thinks that NLP researchers are evil
+but we need to be conscious of the impact of what we're doing
+and there's no real discussion yet -- search ACL anthology, nothing
+public discourse about AI, ethics of AI
+
+today: throw out four things to be aware of:
+  exclusion, overgeneralization, exposure, dual use
+
+exclusion
+NLP works well for WSJ, but poorly for non-standard English
+which correlates strongly with demographics e.g. African-American vernacular
+e.g. performance of POS taggers on tweets from African-Americans is really bad
+also tweets from young people, more than 50% of the world's population
+
+overgeneralization
+false positive
+wrong inferences based on your language use
+
+exposure
+underexposure of languages -- most resources are in English
+overexposure: which is bigger, Lagos or New York?
+  POS tagging vs discourse parsing
+
+dual use
+want to test whether reviews are fake or real
+can use NLP to do this
+but we can also use NLP to generate fake reviews
+
+authorship attribution
+  pro: historical documents
+  con: dissenter anonymity
+etc
+
+what can we do?
+exclusion: use downsampling, priors
+overgeneralization: introduce dummy label, report confidence thresholds
+exposure: consider possible impact
+dual use: educate users, keep discussion going
+
+open questions
+how do we address the issues?
+do we want a list of best practices / code of conduct?
+
+interesting topic but completely poofy
+
+*** ................................................................................................
+
+Incorporating Relational Knowledge into Word Representations using Subspace Regularization
+Abhishek Kumar and Jun Araki
+
+[came in a couple of minutes late and had trouble picking up the thread]
+
+*** ................................................................................................
+
+Word Embedding Calculus in Meaningful Ultradense Subspaces
+Sascha Rothe and Hinrich Schütze
+
+example of map of Britain, flipped and rotated -- not immediately recognizable
+motivation: roate the word embedding space so that we have interpretable subspaces
+e.g. polarity, concreteness, POS
+no information is lost or added
+similarities between vectors are preserved
+
+basic idea
+joy, smart, bad
+rotate vector space so that positive words on the left, negative words on the right
+
+now we can do lots of vector calculus operations
+1 we can compute a neutral word that has the same basic meaning
+    by zeroing the polarity dimension
+2 or we can compute an antonym
+    by inverting the polarity dimension
+3 create word spectrum: hate, dislike, prefer, like, admire, love
+                        sinister, dark, shade, bright, beautiful
+                        hypocrite, POLITICIAN, legislator, reformer, statesman, thinker
+    can do the same thing with concreteness
+4 transform POS
+    symbolize - POS(symbolize) + POS(prediction) = symbol
+    Semantics(symbolize)       + POS(prediction) = symbol
+
+comparison to word2vec analogies
+
+evaluation
+one eval is to dintinguish antonyms from synonyms
+another is morphological analogies
+another is POS tagging
+
+nice
+
+*** ................................................................................................
+
+Machine Comprehension using Rich Semantic Representations
+Mrinmaya Sachan and Eric Xing
+
+understand open-domain text
+reading comprehension
+MCT dataset, Richardson et al. 2013
+500 stories, 4 questions per story, 4 answers per question
+aimed at 7 year olds
+stories are fictional
+
+machine comprehension via textual entailment
+  for each answer, is it entailed by the text?
+AMR abstract meaning representation
+construct a MR graph for entire passage and for each hypothesis
+graph containment solution
+align nodes between graphs
+[OMG IS IT 2006 ALL OVER AGAIN]
+[IS HE GOING TO TO CITE ME -- NOPE]
+
+
+* PEOPLE ===========================================================================================
+
+Chris Manning
+Sam Bowman
+Slav Petrov
+Jakob Uszkoreit
+Dan Bikel
+Dan Jurafsky
+Percy Liang
+Noah Smith
+Neha Nayak
+Jamie Henderon
+Marti Hearst
+Jason Eisner
+Gabor Angeli
+Fernando Pereira
+Arne Mauser
+Jonathan Berant
+Victoria Fossum
+Ellie Pavlick
+Robin Jia
+Jon Gauthier
+Ido Dagan
+Eunsol Choi
+Chris Callison-Burch
+Kevin Knight
+Chris Brockett
+Kristina Toutanova
