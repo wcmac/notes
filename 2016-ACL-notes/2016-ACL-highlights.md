@@ -1,5 +1,3 @@
-;; -*- Mode: Markdown; Mode: Auto-Revert -*-
-
 ## Background
 
 - ACL is the most important venue for presenting new NLP research.
